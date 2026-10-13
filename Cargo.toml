@@ -1,0 +1,36 @@
+[package]
+name = "compress-pictures"
+version = "0.1.0"
+edition = "2021"
+description = "离线批量图片压缩 CLI（Windows 单文件、免环境）"
+
+[[bin]]
+name = "picpress"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+image = { version = "0.25", default-features = false, features = [
+    "jpeg",
+    "png",
+    "webp",
+    "bmp",
+    "tiff",
+    "gif",
+] }
+mozjpeg = "0.10"
+oxipng = "9"
+webp = "0.3"
+ravif = "0.11"
+rayon = "1"
+walkdir = "2"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+# 必须用 -O3：`-Oz/-Os` 会触发 mozjpeg 渐进式编码的
+# Huffman 表错乱（JERR_HUFF_MISSING_CODE）并写坏内存，导致进程崩溃
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

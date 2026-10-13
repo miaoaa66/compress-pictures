@@ -1,0 +1,9 @@
+.idea
+.vscode
+.trae
+.workbuddy
+/target
+/logs
+/picpress.exe
+/out
+/photos

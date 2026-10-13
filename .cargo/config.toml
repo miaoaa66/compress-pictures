@@ -1,0 +1,6 @@
+# 构建机（Windows）专用配置：目标是产出一个不依赖任何运行时的单文件 exe。
+# - crt-static        : 静态链接 C 运行时，不产生额外 DLL
+# - link-self-contained: 使用 Rust 自带的链接器与 MinGW 自包含库，
+#                        从而无需安装 MSVC / 完整 MinGW 发行版即可链接
+[target.x86_64-pc-windows-gnu]
+rustflags = ["-C", "target-feature=+crt-static", "-C", "link-self-contained=y"]
