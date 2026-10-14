@@ -22,8 +22,10 @@ Supported inputs: `jpg/jpeg`, `png`, `webp`, `gif`, `tif/tiff`, `bmp` (subdirect
 ## Quick start
 
 Drop the images to compress into the `photos` folder, then run from the project root (`picpress.exe` sits in the current directory, so the leading `.\` is required). The output directory `out` is created automatically if missing:
-![alt text](./preview/image.png)
-Run ```picpress.exe``` in the project root, or execute one of the commands below on the command line:
+
+![picpress in action](./preview/image.png)
+
+Run `picpress.exe` in the project root, or execute one of the commands below on the command line:
 
 ```powershell
 
@@ -96,21 +98,27 @@ Notes:
 ## FAQ
 
 **The file got bigger after compression?**
+
 Common for small images that were already compressed (e.g. downloaded from the web). Lower the quality (`--quality 60`) or add `--resize` to limit the long edge.
 
 **The AVIF file won't open?**
+
 AVIF is a newer format and some built-in viewers do not support it. You can open it in a recent version of Chrome / Edge, install the *AV1 Video Extension* from the Microsoft Store, or use a third-party viewer that supports AVIF, such as [GuoheView](https://pic.ghxi.com/zh/) or [Bandiview](https://www.bandisoft.com/bandiview/).
 
 **My HEIC photos were not processed?**
+
 HEIC (the iPhone default) is not supported yet; such files are skipped automatically. Set your phone camera to "Most Compatible" (outputs JPEG), or convert the files to JPEG with another tool first.
 
 **Chinese text is garbled in cmd?**
+
 Run `chcp 65001` to switch to the UTF-8 code page, then run the command.
 
 **Large images are slow / use a lot of memory?**
+
 A 9000×13500 image can take several hundred MB of memory once decoded. If memory is tight, lower concurrency with `--jobs 2`; to shrink size fast, add `--resize 3000`.
 
 **Is the compiled `target/` directory huge?**
+
 `target/` is only a build cache, not a deliverable: it is covered by `.gitignore` and the only thing shipped is the ~7.4 MB `picpress.exe`. A new set of artifacts is added only when the build fingerprint changes, and cargo never garbage-collects the old ones — editing code does not accumulate anything, but after you change a profile in `Cargo.toml` (`opt-level`, `debug`, `lto`, …), `RUSTFLAGS`, dependency versions, or the rustc version, the previous artifacts stay on disk and the directory can grow to several GB.
 
 To reclaim the space, delete `target/` and rebuild:

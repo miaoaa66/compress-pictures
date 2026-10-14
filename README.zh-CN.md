@@ -22,8 +22,10 @@
 ## 快速开始
 
 把要压的图片丢进 `photos` 目录，然后在项目根目录执行（`picpress.exe` 就在当前目录，所以前面必须带 `.\`），输出目录 `out` 没有时会自动创建：
-![alt text](./preview/image.png)
-在项目根目录执行```picpress.exe```，或者在命令行里执行下面的命令：
+
+![picpress 运行效果](./preview/image.png)
+
+在项目根目录执行 `picpress.exe`，或者在命令行里执行下面的命令：
 
 ```powershell
 
@@ -95,21 +97,27 @@
 ## 常见问题
 
 **压缩后体积反而变大？**
+
 常见于已经被压过的小图（例如从网上下载的图片）。可以降低质量（`--quality 60`），或加 `--resize` 限制长边。
 
 **AVIF 文件打不开？**
+
 AVIF 是较新的格式，部分系统自带查看器不支持。可以：用 Chrome / Edge 等新版本浏览器打开；在微软商店安装 *AV1 Video Extension*；或使用 [果核看图](https://pic.ghxi.com/zh/)、[Bandiview](https://www.bandisoft.com/bandiview/) 等支持 AVIF 的第三方看图工具。
 
 **HEIC 照片没有被处理？**
+
 当前不支持 HEIC（iPhone 默认格式），这类文件会被自动跳过。可把手机相机设为「兼容性最佳」（输出 JPEG），或先用其他工具转成 JPEG 再来压缩。
 
 **cmd 里中文是乱码？**
+
 先执行 `chcp 65001` 切换到 UTF-8 代码页，再运行命令。
 
 **大图处理慢、内存占用高？**
+
 一张 9000×13500 的图解码后内存可达数百 MB。内存吃紧时用 `--jobs 2` 降低并发；只想快速缩小体积可加 `--resize 3000`。
 
 **编译出的 `target/` 目录很大？**
+
 `target/` 只是编译缓存，不是交付产物：它已在 `.gitignore` 中，真正发出去的只有约 7.4 MB 的 `picpress.exe`。缓存只在「编译指纹」变化时才新增一套，而且 cargo 不会自动清理旧产物——只改代码不会累积；但改动 `Cargo.toml` 里的 profile（`opt-level`、`debug`、`lto` 等）、`RUSTFLAGS`、依赖版本，或升级 rustc 之后，旧产物会留在原地，目录可能涨到数 GB。
 
 回收空间：删掉 `target` 目录再重新构建即可：
@@ -136,6 +144,7 @@ Remove-Item .\target -Recurse -Force
 | 10m.jpg | 9.55 MB | jpg | 816 KB | -91.66% | 本人 |
 | 10m.jpg | 9.55 MB | WebP | 695 KB | -92.9% | 本人 |
 | 10m.jpg | 9.55 MB | AVIF | 337 KB | -96.6% | 本人 |
+
 > 缩放才是降体积的主力：`--resize` 一开，10~20MB 的照片可以直接落到几百 KB，且观感几乎无损。
 
 ## 项目结构
