@@ -110,6 +110,18 @@ Run `chcp 65001` to switch to the UTF-8 code page, then run the command.
 **Large images are slow / use a lot of memory?**
 A 9000×13500 image can take several hundred MB of memory once decoded. If memory is tight, lower concurrency with `--jobs 2`; to shrink size fast, add `--resize 3000`.
 
+**Is the compiled `target/` directory huge?**
+`target/` is only a build cache, not a deliverable: it is covered by `.gitignore` and the only thing shipped is the ~7.4 MB `picpress.exe`. A new set of artifacts is added only when the build fingerprint changes, and cargo never garbage-collects the old ones — editing code does not accumulate anything, but after you change a profile in `Cargo.toml` (`opt-level`, `debug`, `lto`, …), `RUSTFLAGS`, dependency versions, or the rustc version, the previous artifacts stay on disk and the directory can grow to several GB.
+
+To reclaim the space, delete `target/` and rebuild:
+
+```powershell
+Remove-Item .\target -Recurse -Force
+.\build.ps1
+```
+
+If `cargo` is not on your PATH (typing `cargo` gives "The term 'cargo' is not recognized…"), use the full path instead: `& "$env:USERPROFILE\.cargo\bin\cargo.exe" clean`. `build.ps1` already uses that full path internally, so building is unaffected by PATH.
+
 ## Benchmarks (`medium` preset, original resolution kept)
 
 > Test environment: Windows 64-bit, 12-thread CPU. Elapsed times depend on image content and disk speed and are indicative only.

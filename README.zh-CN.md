@@ -109,6 +109,18 @@ AVIF 是较新的格式，部分系统自带查看器不支持。可以：用 Ch
 **大图处理慢、内存占用高？**
 一张 9000×13500 的图解码后内存可达数百 MB。内存吃紧时用 `--jobs 2` 降低并发；只想快速缩小体积可加 `--resize 3000`。
 
+**编译出的 `target/` 目录很大？**
+`target/` 只是编译缓存，不是交付产物：它已在 `.gitignore` 中，真正发出去的只有约 7.4 MB 的 `picpress.exe`。缓存只在「编译指纹」变化时才新增一套，而且 cargo 不会自动清理旧产物——只改代码不会累积；但改动 `Cargo.toml` 里的 profile（`opt-level`、`debug`、`lto` 等）、`RUSTFLAGS`、依赖版本，或升级 rustc 之后，旧产物会留在原地，目录可能涨到数 GB。
+
+回收空间：删掉 `target` 目录再重新构建即可：
+
+```powershell
+Remove-Item .\target -Recurse -Force
+.\build.ps1
+```
+
+若 `cargo` 不在 PATH（直接敲 `cargo` 报「无法识别为 cmdlet」），可以用全路径：`& "$env:USERPROFILE\.cargo\bin\cargo.exe" clean`。`build.ps1` 内部已使用该全路径，所以构建本身不受 PATH 影响。
+
 ## 实测（`medium` 预设，保留原分辨率）
 
 > 实测环境：Windows 64 位、12 线程 CPU。耗时会受图片内容与磁盘速度影响，仅供量级参考。
