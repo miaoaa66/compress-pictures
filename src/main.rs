@@ -20,13 +20,13 @@ use std::sync::Arc;
     about = "离线批量图片压缩工具：单文件、免环境、支持 JPEG/PNG/WebP/AVIF"
 )]
 struct Cli {
-    /// 输入目录（递归扫描子目录）
+    /// 输入目录（递归扫描子目录）；省略则交互式询问
     #[arg(short, long)]
-    input: PathBuf,
+    input: Option<PathBuf>,
 
-    /// 输出目录（默认保留输入的相对目录结构）
+    /// 输出目录（默认保留输入的相对目录结构）；省略则交互式询问
     #[arg(short, long)]
-    output: PathBuf,
+    output: Option<PathBuf>,
 
     /// 输出格式；不传时进入交互式选择
     #[arg(short, long, value_enum)]
@@ -58,8 +58,16 @@ struct Cli {
 }
 
 fn main() {
-    if let Err(e) = run() {
+    // 双击运行（不带任何参数）时结束后暂停，否则控制台窗口会瞬间关闭
+    let interactive = std::env::args().count() <= 1;
+    let result = run();
+    if let Err(e) = &result {
         eprintln!("错误: {e:#}");
+    }
+    if interactive {
+        wait_for_enter();
+    }
+    if result.is_err() {
         std::process::exit(1);
     }
 }
@@ -67,11 +75,22 @@ fn main() {
 fn run() -> Result<()> {
     let cli = Cli::parse();
 
-    if !cli.input.is_dir() {
-        bail!("输入目录不存在或不是目录: {}", cli.input.display());
+    // 缺少输入/输出目录时交互式询问（双击运行时即走这条路径）
+    if cli.input.is_none() || cli.output.is_none() {
+        println!("picpress — 离线批量图片压缩（交互模式）");
+        println!("直接回车使用括号内的默认值\n");
     }
-    if !cli.input.exists() {
-        bail!("输入路径不可访问: {}", cli.input.display());
+    let input = match cli.input {
+        Some(p) => p,
+        None => prompt_dir("输入目录（图片所在目录）", default_input_dir())?,
+    };
+    let output = match cli.output {
+        Some(p) => p,
+        None => prompt_dir("输出目录", PathBuf::from("out"))?,
+    };
+
+    if !input.is_dir() {
+        bail!("输入目录不存在或不是目录: {}", input.display());
     }
 
     let format = match cli.format {
@@ -83,12 +102,12 @@ fn run() -> Result<()> {
     params.resize_long = cli.resize;
     params.keep_exif = cli.keep_exif;
 
-    std::fs::create_dir_all(&cli.output)
-        .map_err(|e| anyhow::anyhow!("无法创建输出目录 {}: {e}", cli.output.display()))?;
+    std::fs::create_dir_all(&output)
+        .map_err(|e| anyhow::anyhow!("无法创建输出目录 {}: {e}", output.display()))?;
 
     let log = Arc::new(Logger::create(Path::new("logs"))?);
 
-    let jobs = walker::collect(&cli.input)?;
+    let jobs = walker::collect(&input)?;
     let threads = match cli.jobs {
         Some(n) if n > 0 => n,
         _ => std::thread::available_parallelism()
@@ -99,11 +118,8 @@ fn run() -> Result<()> {
     let parallel = threads.min(jobs.len().max(1));
     params.avif_threads = (threads / parallel).max(1);
 
-    log.info(&format!(
-        "输入目录: {}",
-        cli.input.display()
-    ));
-    log.info(&format!("输出目录: {}", cli.output.display()));
+    log.info(&format!("输入目录: {}", input.display()));
+    log.info(&format!("输出目录: {}", output.display()));
     log.info(&format!(
         "输出格式: {} · 预设: {} · 质量: {} · 并发: {} 线程",
         format.label(),
@@ -134,7 +150,7 @@ fn run() -> Result<()> {
     let summary = pipeline::run(
         &jobs,
         &params,
-        &cli.output,
+        &output,
         cli.flatten,
         threads,
         &log,
@@ -190,4 +206,37 @@ fn prompt_format() -> Result<OutFormat> {
         "3" | "avif" => OutFormat::Avif,
         other => bail!("无法识别的选择: {other}（请输入 1、2 或 3）"),
     })
+}
+
+/// 交互模式下输入目录的默认值：优先 `photos` 子目录，否则当前目录
+fn default_input_dir() -> PathBuf {
+    let photos = PathBuf::from("photos");
+    if photos.is_dir() {
+        photos
+    } else {
+        PathBuf::from(".")
+    }
+}
+
+/// 交互式询问一个目录，回车则采用默认值
+fn prompt_dir(label: &str, default: PathBuf) -> Result<PathBuf> {
+    print!("{label}（回车默认 {}）：", default.display());
+    io::stdout().flush()?;
+
+    let mut line = String::new();
+    io::stdin().read_line(&mut line)?;
+    // 用户从资源管理器拖入路径时可能带引号
+    let t = line.trim().trim_matches('"');
+    if t.is_empty() {
+        return Ok(default);
+    }
+    Ok(PathBuf::from(t))
+}
+
+/// 双击运行结束时暂停，等用户按回车再关闭窗口
+fn wait_for_enter() {
+    print!("\n按回车键退出…");
+    let _ = io::stdout().flush();
+    let mut line = String::new();
+    let _ = io::stdin().read_line(&mut line);
 }
