@@ -76,17 +76,17 @@
 
 ## 实测（`medium` 预设，保留原分辨率）
 
-| 原图 | 原体积 | 输出 | 体积 | 压缩率 |
-| --- | --- | --- | --- | --- |
-| forest.jpg 9000×5994 | 14.75 MB | WebP | 4.08 MB | -72.4% |
-| city.jpg 9000×13500 | 20.95 MB | WebP | 4.71 MB | -77.5% |
-| city.jpg + `--resize 3000` | 20.95 MB | WebP 2000×3000 | 635 KB | -97.0% |
-| forest.jpg | 14.75 MB | JPEG（original） | 5.07 MB | -65.6% |
-| city.jpg | 20.95 MB | JPEG（original） | 6.26 MB | -70.1% |
-| 04.jpg 5000×3300 | 2.53 MB | AVIF | 1.48 MB | -41.6% |
-| 10m.jpg 3840×2160 | 9.55 MB | WebP | 695 KB | -92.9% |
-| 10m.jpg | 9.55 MB | AVIF | 337 KB | -96.6% |
-
+| 原图 | 原体积 | 输出 | 体积 | 压缩率 | 测试方 |
+| --- | --- | --- | --- | --- | --- |
+| forest.jpg 9000×5994 | 14.75 MB | WebP | 4.08 MB | -72.4% | ai |
+| city.jpg 9000×13500 | 20.95 MB | WebP | 4.71 MB | -77.5% | ai |
+| city.jpg + `--resize 3000` | 20.95 MB | WebP 2000×3000 | 635 KB | -97.0% | ai |
+| forest.jpg | 14.75 MB | JPEG（original） | 5.07 MB | -65.6% | ai |
+| city.jpg | 20.95 MB | JPEG（original） | 6.26 MB | -70.1% | ai |
+| 04.jpg 5000×3300 | 2.53 MB | AVIF | 1.48 MB | -41.6% | ai |
+| 10m.jpg | 9.55 MB | jpg | 816 KB | -91.66% | 本人 |
+| 10m.jpg | 9.55 MB | WebP | 695 KB | -92.9% | 本人 |
+| 10m.jpg | 9.55 MB | AVIF | 337 KB | -96.6% | 本人 |
 > 缩放才是降体积的主力：`--resize` 一开，10~20MB 的照片可以直接落到几百 KB，且观感几乎无损。
 
 ## 从源码构建（仅构建机需要）
