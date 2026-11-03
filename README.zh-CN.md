@@ -176,6 +176,13 @@ Remove-Item .\target -Recurse -Force
 
 ---
 
+## 其他压缩网站
+
+```
+https://tinypng.com/zh
+
+```
+
 ## ⚠️ 仓库说明
 
 本项目**主仓库位于 Gitee**，GitHub 为自动单向同步的只读镜像。

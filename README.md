@@ -177,6 +177,13 @@ By default gcc is looked up in `C:\devtools\w64devkit\bin` and nasm in `C:\devto
 
 ---
 
+## other compression websites
+
+```
+https://tinypng.com/zh
+
+```
+
 ## ⚠️ Repository notice
 
 The **primary repository of this project is on Gitee**; GitHub is a read-only mirror that is synced automatically, one direction only.
